@@ -48,6 +48,8 @@ def manipulate_test(attribute, output_dir, image_name, noise_path, resolution, g
 
     latent = np.load(noise_path)
     noise_torch = torch.from_numpy(latent).float().cuda()
+    
+    noise_torch = noise_torch.unsqueeze(0)
 
     if latent_type == "ws":
         ws = noise_torch
@@ -87,16 +89,20 @@ def manipulate_test(attribute, output_dir, image_name, noise_path, resolution, g
         test_torch = torch.from_numpy(wp_mani[:,step_idx,:,:])
         test_torch = test_torch.type(torch.FloatTensor).cuda()
         images = gan.net.synthesis(test_torch)
-        
+    
     save_img(images, f"{output_dir}/{image_name}.png",is_torch=True, is_map=False, trans_type=None)
+    
+    np.save(f"/home/FYP/limg0038/ials/invertedImages/latent_code_adv/{latent_code[:-4]}.npy", test_torch.cpu().detach().numpy())
 
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--attribute", type=str, default="supermodel", help="manipulate attribute name")
-    parser.add_argument("--output_dir", type=str, default="/home/FYP/limg0038/ials/invertedImages/img_advstyle")
-    parser.add_argument("--latent_code_path", type=str, default="/home/FYP/limg0038/ials/invertedImages/latent_code_ials")
+    # parser.add_argument("--output_dir", type=str, default="/home/FYP/limg0038/ials/invertedImages/img_advstyle")
+    # parser.add_argument("--latent_code_path", type=str, default="/home/FYP/limg0038/ials/invertedImages/latent_code_ials")
+    parser.add_argument("--output_dir", type=str, default="/scratch-shared/LIMG0038/images/test_adv/smile_young/img_adv")
+    parser.add_argument("--latent_code_path", type=str, default="/home/FYP/limg0038/ials/invertedImages/latent_code_inv")
     parser.add_argument("--resolution", default=1024, type=int)
     parser.add_argument("--gan_model", default="stylegan_ffhq", type=str)
     parser.add_argument("--latent_type", default="w", type=str)
